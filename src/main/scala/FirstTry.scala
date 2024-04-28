@@ -1,4 +1,4 @@
-import org.apache.spark.sql.{Encoders, Row, SparkSession}
+import org.apache.spark.sql.{Row, SparkSession}
 
 import scala.util.Random
 
@@ -21,12 +21,10 @@ object FirstTry {
     val bigRDD = spark.sparkContext.parallelize(1 to numRows, numSlices = 2)
       .map(seed => generateRandomRecord(seed))
     val bigDF = bigRDD.toDF("key", "value")
-    println(s"bigDF rowCount: ${bigDF.queryExecution.analyzed.stats.rowCount}")
     println(s"bigDF sizeInBytes: ${bigDF.queryExecution.analyzed.stats.sizeInBytes}")
 
     // 4. Create the small table dataframe
     val smallDF = spark.createDataFrame(spark.sparkContext.emptyRDD[Row], bigDF.schema)
-    println(s"smallDF rowCount: ${smallDF.queryExecution.analyzed.stats.rowCount}")
     println(s"smallDF sizeInBytes: ${smallDF.queryExecution.analyzed.stats.sizeInBytes}")
 
     // 5. Join
