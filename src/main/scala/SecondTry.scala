@@ -8,7 +8,7 @@ object SecondTry {
     val spark = SparkSession.builder.master("local").getOrCreate()
 
     // 2. Load the big table dataframe
-    val bigDF = spark.read.option("header","true").csv("src/main/resources/people-100000.csv")
+    val bigDF = spark.read.option("header","true").csv("src/main/resources/people-500000.csv")
     println(s"bigDF sizeInBytes: ${bigDF.queryExecution.analyzed.stats.sizeInBytes}")
 
     // 3. Load the small table dataframe
