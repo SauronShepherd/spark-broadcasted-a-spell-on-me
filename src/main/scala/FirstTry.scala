@@ -1,5 +1,6 @@
 import org.apache.spark.sql.{Row, SparkSession}
 
+import scala.io.StdIn
 import scala.util.Random
 
 object FirstTry {
@@ -7,7 +8,9 @@ object FirstTry {
   def main(args: Array[String]): Unit = {
 
     // 1. Configure Spark
-    val spark = SparkSession.builder.master("local").getOrCreate()
+    val spark = SparkSession.builder
+                            .master("local")
+                            .getOrCreate()
 
     import spark.implicits._
 
@@ -21,18 +24,18 @@ object FirstTry {
     val bigRDD = spark.sparkContext.parallelize(1 to numRows, numSlices = 2)
       .map(seed => generateRandomRecord(seed))
     val bigDF = bigRDD.toDF("key", "value")
-    println(s"bigDF sizeInBytes: ${bigDF.queryExecution.analyzed.stats.sizeInBytes}")
 
     // 4. Create the small table dataframe
     val smallDF = spark.createDataFrame(spark.sparkContext.emptyRDD[Row], bigDF.schema)
-    println(s"smallDF sizeInBytes: ${smallDF.queryExecution.analyzed.stats.sizeInBytes}")
 
-    // 5. Join
+    // 5. Join and count
     val joinDF = bigDF.join(smallDF, "key")
-
-    // 6. Count, sleep and stop
     joinDF.count()
-    Thread.sleep(60000)
+
+    // 6. Print sizes, readLine and stop
+    println(s"bigDF sizeInBytes: ${bigDF.queryExecution.analyzed.stats.sizeInBytes}")
+    println(s"smallDF sizeInBytes: ${smallDF.queryExecution.analyzed.stats.sizeInBytes}")
+    StdIn.readLine("Press enter to finish ...")
     spark.stop()
   }
 }
